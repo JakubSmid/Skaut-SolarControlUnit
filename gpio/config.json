@@ -1,0 +1,19 @@
+{
+    "mqtt": {
+        "broker": "localhost",
+        "port": 1883,
+        "username": "your_mqtt_user",
+        "password": "your_mqtt_password"
+    },
+    "gpio": {
+        "base_topic": "orangepi/gpio",
+        "input_pins": [],
+        "output_pins": [
+            {
+                "gpiochip": 1,
+                "pin": 233,
+                "name": "relay_1"
+            }
+        ]
+    }
+}
