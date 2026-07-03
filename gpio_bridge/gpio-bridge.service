@@ -1,0 +1,20 @@
+[Unit]
+Description=GPIO MQTT Bridge Service
+After=network.target mosquitto.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/gpio_bridge
+Environment="GPIO_CONFIG=/root/gpio_bridge/config.json"
+ExecStart=/root/gpio_bridge/venv/bin/python /root/gpio_bridge/gpio_bridge.py
+
+Restart=always
+RestartSec=10
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

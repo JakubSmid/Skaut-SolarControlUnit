@@ -13,18 +13,8 @@ logger = logging.getLogger(__name__)
 # --- Load Configuration ---
 CONFIG_FILE = os.environ.get("GPIO_CONFIG", "config.json")
 
-try:
-    with open(CONFIG_FILE) as f:
-        config = json.load(f)
-except FileNotFoundError:
-    logger.error(f"Configuration file '{CONFIG_FILE}' not found. Please create it or set GPIO_CONFIG env var.")
-    raise SystemExit(1)
-except json.JSONDecodeError as e:
-    logger.error(f"Configuration file '{CONFIG_FILE}' contains invalid JSON: {e}")
-    raise SystemExit(1)
-except PermissionError:
-    logger.error(f"Permission denied reading configuration file '{CONFIG_FILE}'.")
-    raise SystemExit(1)
+with open(CONFIG_FILE) as f:
+    config = json.load(f)
 
 MQTT_BROKER = config.get("mqtt", {}).get("broker")
 if not MQTT_BROKER:
