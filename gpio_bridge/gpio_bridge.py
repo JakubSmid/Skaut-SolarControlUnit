@@ -65,9 +65,12 @@ def init_hardware(loop):
         line = chip.get_line(pin_no)
         line.request(consumer="mqtt_bridge_out", type=gpiod.LINE_REQ_DIR_OUT)
         
+        # Set initial state to LOW (0)
+        line.set_value(0)
+        
         # Store for later modification
         output_lines[f"{chip_no}_{pin_no}"] = line
-        logger.info(f"Configured OUTPUT: gpiochip{chip_no} pin {pin_no}")
+        logger.info(f"Configured OUTPUT: gpiochip{chip_no} pin {pin_no} -> 0")
 
     # Configure Inputs
     for cfg in INPUT_PINS:
