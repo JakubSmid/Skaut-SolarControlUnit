@@ -1,9 +1,7 @@
 {
     "mqtt": {
         "broker": "localhost",
-        "port": 1883,
-        "username": "your_mqtt_user",
-        "password": "your_mqtt_password"
+        "port": 1883
     },
     "gpio": {
         "base_topic": "orangepi/gpio",
@@ -11,8 +9,31 @@
         "output_pins": [
             {
                 "gpiochip": 1,
+                "pin": 74,
+                "name": "relay_4",
+                "default_state": 0,
+                "invert": true
+            },
+            {
+                "gpiochip": 1,
                 "pin": 233,
-                "name": "relay_1"
+                "name": "relay_3",
+                "default_state": 0,
+                "invert": true
+            },
+            {
+                "gpiochip": 1,
+                "pin": 71,
+                "name": "relay_1",
+                "default_state": 0,
+                "invert": true
+            },
+            {
+                "gpiochip": 1,
+                "pin": 230,
+                "name": "relay_2",
+                "default_state": 0,
+                "invert": true
             }
         ]
     }
