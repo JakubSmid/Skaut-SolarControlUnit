@@ -56,7 +56,12 @@ class BleClient():
       await self._send(0x97)
       await asyncio.sleep(0.2)
       await self._send(0x96)
-      await asyncio.wait_for(self._init_event.wait(), timeout=10)
+      try:
+         await asyncio.wait_for(self._init_event.wait(), timeout=10)
+      except asyncio.TimeoutError:
+         # Clean up on timeout to avoid inconsistent state
+         await self.client.disconnect()
+         raise BleakError("Initialization timeout - device did not respond")
 
       self.logger.info("Connected and notifications enabled")
 
@@ -91,9 +96,9 @@ class BleClient():
 
          if not BmsFrame.check_crc(frame):
             self.logger.warning("CRC failed for received frame. Discarding.")
-            # discard header to try next frame
-            self._buffer = self._buffer[len(BmsFrame.RESP_HEADER):]
-            continue
+            # discard just the header to try finding next valid frame
+            self._buffer = self._buffer[expected_len:]
+            continue  # Continue the while loop to check for more frames
 
          resp_type = BmsFrame.get_resp_type(frame)
          self.logger.debug(f"Valid frame received, type 0x{resp_type:02X}")
@@ -104,14 +109,25 @@ class BleClient():
          if resp_type == SettingsResponse.RESP_TYPE:
             self.device_settings = SettingsResponse(frame)
 
-         if resp_type == CellDataResponse.RESP_TYPE and self._init_event.is_set():
-            if self.cell_data_callback:
-               self.cell_data_callback(CellDataResponse(frame))
+         # Call callback for cell data once initialized OR during initialization
+         # This ensures we don't lose data if it arrives slightly early
+         if resp_type == CellDataResponse.RESP_TYPE:
+            if self.cell_data_callback is not None:
+               try:
+                  self.cell_data_callback(CellDataResponse(frame))
+               except Exception as e:
+                  self.logger.error(f"Error in cell data callback: {e}")
 
+         # Set init event only after both device_info and device_settings are received
          if self.device_info is not None and self.device_settings is not None:
             self._init_event.set()
 
+         # Move past this frame to look for more
          self._buffer = self._buffer[expected_len:]
+         
+         # Break if no more data to process
+         if len(self._buffer) < BmsFrame.RESP_LEN:
+            return
 
    async def _send(self, address, value: list = ()):
       packet = BmsFrame.build_packet(address, value)

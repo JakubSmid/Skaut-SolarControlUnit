@@ -4,9 +4,9 @@ from bleak.exc import BleakError
 import aiomqtt
 import os
 
-from bms_bridge.ble_client import BleClient
-from bms_bridge.protocol import CellDataResponse
-from bms_bridge.bms_mqtt import BmsMqttClient
+from ble_client import BleClient
+from protocol import CellDataResponse
+from bms_mqtt import BmsMqttClient
 
 ADDRESS = os.environ.get("BMS_MAC", "C8:47:80:22:29:9F")
 MQTT_BROKER = os.environ.get("MQTT_HOST", "localhost")
